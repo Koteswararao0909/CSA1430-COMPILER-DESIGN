@@ -1,0 +1,21 @@
+#include <stdio.h>
+void deadCodeElimination(int *flag);
+void liveCode() {
+    printf("This is live code.\n");
+}
+void deadCode() {
+    printf("This is dead code.\n");
+}
+int main() {
+    int flag = 0;
+    deadCodeElimination(&flag);
+    if (flag == 1) {
+        liveCode();
+    } else {
+        deadCode();
+    }
+    return 0;
+}
+void deadCodeElimination(int *flag) {
+    *flag = 1;
+}
