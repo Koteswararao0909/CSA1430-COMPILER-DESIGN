@@ -1,0 +1,27 @@
+ #include <stdio.h>
+#include <stdlib.h>
+typedef struct Quadruple {
+    char op;   
+    char arg1[10];   
+    char arg2[10];   
+    char result[10];  
+} Quadruple;
+Quadruple generateQuadruple(char op, const char* arg1, const char* arg2, const char* result) {
+    Quadruple quad;
+    quad.op = op;
+    snprintf(quad.arg1, sizeof(quad.arg1), "%s", arg1);
+    snprintf(quad.arg2, sizeof(quad.arg2), "%s", arg2);
+    snprintf(quad.result, sizeof(quad.result), "%s", result);
+    return quad;
+}
+int main() {
+     Quadruple quadruples[4];
+    quadruples[0] = generateQuadruple('+', "c", "d", "t1");
+    quadruples[1] = generateQuadruple('*', "b", "t1", "t2");
+    quadruples[2] = generateQuadruple('=', "t2", "", "a");
+    printf("Intermediate Code (Quadruples):\n");
+    for (int i = 0; i < 3; ++i) {
+        printf("%c, %s, %s, %s\n", quadruples[i].op, quadruples[i].arg1, quadruples[i].arg2, quadruples[i].result);
+    }
+    return 0;
+}
