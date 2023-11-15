@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <string.h>
+#define NUM_STATES 5
+#define NUM_SYMBOLS 4
+char *productions[] = {
+    "E->E+T",
+    "E->T",
+    "T->T*F",
+    "T->F",
+    "F->(E)",
+    "F->id"
+};
+char *terminals[] = {"+", "*", "(", ")", "id", "$"};
+char *nonTerminals[] = {"E", "T", "F"};
+int parsingTable[NUM_STATES][NUM_SYMBOLS];
+int stack[1000];
+int top = -1;
+void initializeParsingTable() {
+    parsingTable[0][4] = 5;  
+    parsingTable[1][0] = 1;  
+    parsingTable[1][3] = 2;  
+    parsingTable[2][0] = -1;
+    parsingTable[2][1] = 3;   
+    parsingTable[2][3] = -1; 
+    parsingTable[3][0] = -1;  
+    parsingTable[3][1] = -1;  
+    parsingTable[3][2] = 4;   
+    parsingTable[3][3] = -1;  
+    parsingTable[4][0] = -1;   
+    parsingTable[4][1] = -1;  
+    parsingTable[4][2] = -1; 
+    parsingTable[4][3] = -1;  
+    parsingTable[5][0] = -1;  
+    parsingTable[5][1] = -1;  
+    parsingTable[5][2] = -1;  
+    parsingTable[5][3] = -1;  
+    parsingTable[0][0] = 1;  
+    parsingTable[0][2] = 3;  
+    parsingTable[0][4] = 6; 
+    parsingTable[2][2] = 7;  
+    parsingTable[5][2] = 8;  
+}
+void parseInput(char *input) {
+    int state, symbol, action, nextState;
+    stack[++top] = 0;
+    while (1) {
+        state = stack[top];
+        for (symbol = 0; symbol < NUM_SYMBOLS; symbol++) {
+            if (strcmp(terminals[symbol], input) == 0) {
+                break;
+            }
+        }
+        action = parsingTable[state][symbol];
+        if (action > 0) {
+            printf("Shift %s\n", input);
+            stack[++top] = action;  
+            input = strtok(NULL, " ");  
+        } else if (action < 0) {
+            action = -action;
+            printf("Reduce by %s\n", productions[action - 1]);
+            for (int i = 0; i < strlen(productions[action - 1]) - 3; i++) {
+                top--;
+            }
+            char *lhs = strtok(productions[action - 1], "->");
+            for (symbol = 0; symbol < NUM_SYMBOLS; symbol++) {
+                if (strcmp(nonTerminals[symbol], lhs) == 0) {
+                    break;
+                }
+            }
+            nextState = parsingTable[stack[top]][symbol];
+            stack[++top] = nextState;
+        } else {
+             printf("Accept\n");
+            break;
+        }
+    }
+}
+int main() {
+    char input[100];
+    printf("Enter the input string: ");
+    fgets(input, sizeof(input), stdin);
+    char *token = strtok(input, " ");
+    parseInput(token);
+    return 0;
+}
