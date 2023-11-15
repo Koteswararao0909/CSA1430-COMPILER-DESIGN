@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <string.h>
+int isAmbiguous(char grammar[][3], int numRules, char startSymbol) {
+    int i, j, k;
+    int ambiguous = 0;
+    for (i = 0; i < numRules; i++) {
+        for (j = i + 1; j < numRules; j++) {
+            if (grammar[i][0] == grammar[j][0]) {
+                char derivedString1[100], derivedString2[100];
+                strcpy(derivedString1, grammar[i] + 3);
+                strcpy(derivedString2, grammar[j] + 3);
+                for (k = 0; k < 10; k++) {
+                    if (strcmp(derivedString1, derivedString2) == 0) {
+                        ambiguous = 1;
+                        break;
+                    }
+                    for (int l = 0; l < numRules; l++) {
+                        if (derivedString1[k] == grammar[l][0]) {
+                            strcpy(derivedString1 + k, grammar[l] + 3);
+                            break;
+                        }
+                    }
+                    for (int l = 0; l < numRules; l++) {
+                        if (derivedString2[k] == grammar[l][0]) {
+                            strcpy(derivedString2 + k, grammar[l] + 3);
+                            break;
+                        }
+                    }
+                }
+                if (ambiguous) {
+                    printf("Ambiguous: %c can derive the same string in more than one way.\n", grammar[i][0]);
+                    return 1;
+                }
+            }
+        }
+    }
+    printf("Not Ambiguous: The grammar is not ambiguous.\n");
+    return 0;
+}
+int main() {
+    char grammar[][3] = {
+        {'E', '=', 'E'},
+        {'E', '+', 'E'},
+        {'E', '*', 'E'},
+        {'E', '(', 'E'},
+        {'E', ')', 'E'},
+        {'E', 'i', '\0'}   
+		    };
+    int numRules = sizeof(grammar) / sizeof(grammar[0]);
+    char startSymbol = 'E';
+    isAmbiguous(grammar, numRules, startSymbol);
+    return 0;
+}
