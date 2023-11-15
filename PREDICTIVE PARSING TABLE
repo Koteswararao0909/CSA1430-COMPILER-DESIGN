@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <string.h>
+#define NUM_NON_TERMINALS 3
+#define NUM_TERMINALS 4
+#define E 0
+#define T 1
+#define F 2
+#define PLUS 0
+#define MULTIPLY 1
+#define OPEN_PAREN 2
+#define CLOSE_PAREN 3
+int parsingTable[NUM_NON_TERMINALS][NUM_TERMINALS] = {
+    {0, 0, 1, 0},  
+    {2, 0, 0, 2},  
+    {0, 0, 3, 0}   
+};
+char* grammarRules[NUM_NON_TERMINALS][2] = {
+    {"T", "E'"},
+    {"F", "T'"},
+    {"id", "(E)", "num"}
+};
+char stack[100];
+int top = -1;
+char input[100];
+void push(char symbol) {
+    stack[++top] = symbol;
+}
+char pop() {
+    return stack[top--];
+}
+int getIndex(char symbol, int isTerminal) {
+    if (isTerminal) {
+        switch (symbol) {
+            case '+':
+                return PLUS;
+            case '*':
+                return MULTIPLY;
+            case '(':
+                return OPEN_PAREN;
+            case ')':
+                return CLOSE_PAREN;
+        }
+    } else {
+        switch (symbol) {
+            case 'E':
+                return E;
+            case 'T':
+                return T;
+            case 'F':
+                return F;
+        }
+    }
+    return -1;
+}
+void predictiveParse() {
+    int i, j;
+    push('$'); 
+    push('E'); 
+    printf("Parsing Steps:\n");
+    i = 0; 
+    while (top != -1) {
+        char X = pop(); 
+        char currentInput = input[i];
+        if (X == currentInput) {
+            printf("Match %c\n", X);
+            i++;
+        } else if (X >= 'A' && X <= 'Z') {
+            j = getIndex(currentInput, 1);
+            if (j == -1) {
+                printf("Error: Invalid input symbol\n");
+                break;
+            }
+            if (parsingTable[getIndex(X, 0)][j] != 0) {
+                int ruleIndex = parsingTable[getIndex(X, 0)][j] - 1;
+                char* production = grammarRules[getIndex(X, 0)][ruleIndex];
+
+                printf("Apply %c -> %s\n", X, production);
+              for (int k = strlen(production) - 1; k >= 0; k--) {
+                    if (production[k] != ' ')
+                        push(production[k]);
+                }
+            } else {
+                printf("Error: No production for %c and input symbol %c\n", X, currentInput);
+                break;
+            }
+        } else {
+            printf("Error: Mismatch. Expected %c, got %c\n", X, currentInput);
+            break;
+        }
+    }
+    if (top == -1 && input[i] == '\0') {
+        printf("Parsing successful.\n");
+    } else {
+        printf("Parsing failed.\n");
+    }
+}
+int main() {
+    printf("Enter the input string: ");
+    scanf("%s", input);
+    predictiveParse();
+    return 0;
+}
