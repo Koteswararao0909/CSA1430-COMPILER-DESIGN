@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct {
+    char operation;  
+    int operand1;
+    int operand2;
+    int result;
+} IntermediateCode;
+void generateAssembly(IntermediateCode* intermediateCodes, int numCodes) {
+    printf("Generated Assembly Code:\n");
+    for (int i = 0; i < numCodes; ++i) {
+        IntermediateCode code = intermediateCodes[i];
+        switch (code.operation) {
+            case '+':
+                printf("ADD R%d, R%d, R%d\n", code.result, code.operand1, code.operand2);
+                break;
+            case '-':
+                printf("SUB R%d, R%d, R%d\n", code.result, code.operand1, code.operand2);
+                break;
+            case '*':
+                printf("MUL R%d, R%d, R%d\n", code.result, code.operand1, code.operand2);
+                break;
+            case '/':
+                printf("DIV R%d, R%d, R%d\n", code.result, code.operand1, code.operand2);
+                break;
+            default:
+                fprintf(stderr, "Unsupported operation: %c\n", code.operation);
+                exit(EXIT_FAILURE);
+        }
+    }
+}
+int main() {
+    IntermediateCode intermediateCodes[] = {
+        {'+', 1, 2, 3},  // R3 = R1 + R2
+        {'*', 4, 5, 6},  // R6 = R4 * R5
+        {'-', 7, 8, 9}   // R9 = R7 - R8
+		 };
+    int numCodes = sizeof(intermediateCodes) / sizeof(IntermediateCode);
+    generateAssembly(intermediateCodes, numCodes);
+    return 0;
+}
